@@ -106,19 +106,26 @@ public class TransformerSendPacket implements IClassTransformer {
     }
 
     private static void validateLabel(AbstractInsnNode insertNode){
-        if (!(insertNode instanceof LabelNode)){
+        if (!(insertNode instanceof LabelNode))
             throw new IllegalStateException("Invalid insertion point node, expected label, got: " + insertNode.getClass().getSimpleName());
-        }
     }
 
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void logMethods(String missingMethod, ClassNode owner){
-        ChatCensor.getMinecraftHelper().getLogger().error("Chat Filter could not find NetHandlerPlayServer.{}, generating debug logs...", missingMethod);
+        if(ChatCensor.getMinecraftHelper().getLogger() != null) {
+            ChatCensor.getMinecraftHelper().getLogger().error("Chat Filter could not find NetHandlerPlayServer.{}, generating debug logs...", missingMethod);
 
-        for(MethodNode method:owner.methods){
-            ChatCensor.getMinecraftHelper().getLogger().error("> {} .. {}", method.name, method.desc);
+            for (MethodNode method : owner.methods)
+                ChatCensor.getMinecraftHelper().getLogger().error("> {} .. {}", method.name, method.desc);
+        } else {
+            System.err.println(String.format("Chat Filter could not find NetHandlerPlayServer.%s, generating debug logs...", missingMethod));
+
+            for (MethodNode method : owner.methods)
+                System.err.println(String.format("> %s .. %s", method.name, method.desc));
         }
     }
 
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void logInstructions(MethodNode method){
         TraceMethodVisitor visitor = new TraceMethodVisitor(new Textifier());
 
@@ -128,8 +135,10 @@ public class TransformerSendPacket implements IClassTransformer {
 
         int index = 0;
 
-        for(Object obj:visitor.p.getText()){
-            ChatCensor.getMinecraftHelper().getLogger().error("> {}: {}", ++index, StringUtils.stripEnd(obj.toString(), null));
-        }
+        for(Object obj:visitor.p.getText())
+            if(ChatCensor.getMinecraftHelper().getLogger() != null)
+                ChatCensor.getMinecraftHelper().getLogger().error("> {}: {}", ++index, StringUtils.stripEnd(obj.toString(), null));
+            else
+                System.err.println(String.format("> %s: %s", ++index, StringUtils.stripEnd(obj.toString(), null)));
     }
 }
