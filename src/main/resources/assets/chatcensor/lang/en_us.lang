@@ -1,3 +1,3 @@
-commands.chatfilter.usage=/chatfilter
-commands.chatfilter.filtered=Messages you see will now be censored.
-commands.chatfilter.unfiltered=Messages you see will no longer be censored.
+commands.togglecensor.usage=/chatfilter
+commands.togglecensor.filtered=Messages you see will now be censored.
+commands.togglecensor.unfiltered=Messages you see will no longer be censored.

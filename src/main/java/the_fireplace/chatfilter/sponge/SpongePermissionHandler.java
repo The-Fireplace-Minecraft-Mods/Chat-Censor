@@ -18,7 +18,7 @@ public class SpongePermissionHandler implements IPermissionHandler {
             return;
         permissionService = Sponge.getServiceManager().provide(PermissionService.class).get();
 
-        registerPermission("commands.chatfilter", PermissionDescription.ROLE_USER, "");
+        registerPermission("commands.togglesensor", PermissionDescription.ROLE_USER, "");
     }
 
     @Override

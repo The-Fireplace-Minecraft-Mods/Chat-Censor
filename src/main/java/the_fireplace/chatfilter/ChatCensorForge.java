@@ -6,10 +6,13 @@ import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import org.apache.logging.log4j.Logger;
 import the_fireplace.chatfilter.abstraction.IConfig;
 import the_fireplace.chatfilter.forge.ForgePermissionHandler;
 import the_fireplace.chatfilter.forge.compat.ForgeMinecraftHelper;
+import the_fireplace.chatfilter.logic.ServerEventLogic;
 import the_fireplace.chatfilter.sponge.SpongePermissionHandler;
 import the_fireplace.chatfilter.util.NetworkUtils;
 
@@ -45,11 +48,21 @@ public final class ChatCensorForge {
             ChatCensor.setPermissionManager(new ForgePermissionHandler());
     }
 
+    @Mod.EventHandler
+    public void onServerStart(FMLServerStartingEvent event) {
+        ServerEventLogic.onServerStarting(event.getServer());
+    }
+
+    @Mod.EventHandler
+    public void onServerStop(FMLServerStoppingEvent event) {
+        ServerEventLogic.onServerStopping();
+    }
+
     @SuppressWarnings("WeakerAccess")
     @Config(modid = MODID)
     private static class cfg implements IConfig {
         //General mod configuration
-        @Config.Comment("Server locale - the client's locale takes precedence if Clans is installed there.")
+        @Config.Comment("Server locale - the client's locale takes precedence if Chat Censor is installed there.")
         public static String locale = "en_us";
         @Config.Comment("The strings that should be censored for players that have censoring enabled")
         public static String[] stingsToCensor = {"fuck", "shit", "bitch", "nigger", "dick", "crap", "cunt", "pussy", "niglet", "beaner", "wetback", "spic", "nazi", "faggot", "fag", "towelhead"};

@@ -35,15 +35,17 @@ public class NetworkUtils {
         if(PlayerDataManager.getIgnoresFilter(chatTargetId))
             return original;
         try {
+            //Write the Packet to the PacketBuffer because the only other option to access the TextComponent on the server side would be an access transformer.
             PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
             original.writePacketData(buf);
             ITextComponent comp = buf.readTextComponent();
             int initHash = comp.getUnformattedComponentText().hashCode();
-            if(censoredComponents.containsKey(initHash))
+            //Use the message we have already created if possible.
+            if(ChatCensor.getConfig().useCache() && censoredComponents.containsKey(initHash))
                 comp = censoredComponents.get(initHash);
             else {
                 comp = getCensoredTextComponent(comp);
-                if(comp.getUnformattedComponentText().hashCode() != initHash)
+                if(ChatCensor.getConfig().useCache() && comp.getUnformattedComponentText().hashCode() != initHash)
                     censoredComponents.put(initHash, comp);
             }
             return new SPacketChat(comp, original.getType());
@@ -53,7 +55,7 @@ public class NetworkUtils {
         }
     }
 
-    private static ITextComponent getCensoredTextComponent(ITextComponent comp) {
+    public static ITextComponent getCensoredTextComponent(ITextComponent comp) {
         List<ITextComponent> newSiblings = Lists.newArrayList();
         for(ITextComponent sibling: comp.getSiblings())
             newSiblings.add(getCensoredTextComponent(sibling));
@@ -76,12 +78,12 @@ public class NetworkUtils {
         return comp;
     }
 
-    private static String getCensored(String censor) {
+    public static String getCensored(String censor) {
         String sub = censor.substring(1, censor.length()-1);;
         return censor.substring(0, 1) + sub.replaceAll(".", "*") + censor.substring(censor.length() - 1);
     }
 
-    private static String matchCase(String correctCase, String formatted) {
+    public static String matchCase(String correctCase, String formatted) {
         char[] out = formatted.toCharArray();
         for(int i=0;i<correctCase.length();i++)
             if(Character.isLetter(out[i]) && Character.isUpperCase(correctCase.charAt(i)))
@@ -89,7 +91,7 @@ public class NetworkUtils {
         return String.copyValueOf(out);
     }
 
-    private static ITextComponent getFormatArgumentAsComponent(int index, Object[] args, Style style)
+    public static ITextComponent getFormatArgumentAsComponent(int index, Object[] args, Style style)
     {
         Object object = args[index];
         ITextComponent itextcomponent;

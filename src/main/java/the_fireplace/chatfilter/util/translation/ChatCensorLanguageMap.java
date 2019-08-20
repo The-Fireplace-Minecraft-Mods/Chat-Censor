@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 public class ChatCensorLanguageMap {
     /** Pattern that matches numeric variable placeholders in a resource string, such as "%d", "%3$d", "%.2f" */
+    @SuppressWarnings("RegExpRedundantEscape")
     private static final Pattern NUMERIC_VARIABLE_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d\\.]*[df]");
     /** A Splitter that splits a string on the first "=".  For example, "a=b=c" would split into ["a", "b=c"]. */
     private static final Splitter EQUAL_SIGN_SPLITTER = Splitter.on('=').limit(2);

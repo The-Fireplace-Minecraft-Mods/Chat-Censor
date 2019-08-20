@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class TranslationUtil {
 
-    public static List<UUID> clansClients = Lists.newArrayList();
+    public static List<UUID> chatCensorClients = Lists.newArrayList();
 
     /**
      * Gets the translation for the given key and arguments and returns the unformatted string.
@@ -47,7 +47,7 @@ public class TranslationUtil {
      * Returns the translation key if the target is able to translate it, or the translated string otherwise.
      */
     public static String getRawTranslationString(@Nullable UUID target, String translationKey) {
-        if(target == null || !clansClients.contains(target))
+        if(target == null || !chatCensorClients.contains(target))
             return I18n.translateToLocalFormatted(translationKey);
         else
             return translationKey;
@@ -71,7 +71,7 @@ public class TranslationUtil {
      * Returns the TextComponentTranslation if the target is able to translate it, or the translated TextComponentString otherwise.
      */
     public static ITextComponent getTranslation(@Nullable UUID target, String translationKey, Object... args) {
-        if(target == null || !clansClients.contains(target))
+        if(target == null || !chatCensorClients.contains(target))
             return new TextComponentString(I18n.translateToLocalFormatted(translationKey, args));
         else
             return new TextComponentTranslation(translationKey, args);
