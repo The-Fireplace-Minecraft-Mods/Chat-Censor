@@ -15,9 +15,11 @@ import java.util.Iterator;
 
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
+@SuppressWarnings({"UseOfSystemOutOrSystemErr", "SameParameterValue"})
 public class TransformerSendPacket implements IClassTransformer {
     private static final String[] NAMES_SENDPACKET = new String[]{ "a", "sendPacket" };
-    private static final String DESC_SENDPACKET = "(Lnet/minecraft/network/Packet;)V";
+    private static final String[] DESCS_SENDPACKET = new String[]{"(Lht;)V", "(Lnet/minecraft/network/Packet;)V"};
+    private String packetDesc, sPacketChatDesc, entityPlayerMPDesc, netHandlerPlayServer, player;
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
@@ -28,7 +30,7 @@ public class TransformerSendPacket implements IClassTransformer {
 
             transformNetHandlerPlayServer(node);
 
-            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);//| ClassWriter.COMPUTE_MAXS
+            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
             node.accept(writer);
             return writer.toByteArray();
         }
@@ -38,12 +40,25 @@ public class TransformerSendPacket implements IClassTransformer {
     private void transformNetHandlerPlayServer(ClassNode node){
         MethodNode sendPacket = node.methods
                 .stream()
-                .filter(method -> method.desc.equals(DESC_SENDPACKET) && ArrayUtils.contains(NAMES_SENDPACKET, method.name))
+                .filter(method -> ArrayUtils.contains(DESCS_SENDPACKET, method.desc) && ArrayUtils.contains(NAMES_SENDPACKET, method.name))
                 .findAny()
                 .orElseThrow(() -> {
                     logMethods("sendPacket", node);
                     return new IllegalStateException("Chat Filter failed modifying NetHandlerPlayServer - could not find sendPacket. The mod has generated logs to help pinpointing the issue, please include them in your report.");
                 });
+        if(sendPacket.desc.equals("(Lht;)V")) {
+            packetDesc = "Lht;";
+            sPacketChatDesc = "Lin;";
+            entityPlayerMPDesc = "Loq;";
+            netHandlerPlayServer = "pa";
+            player = "b";
+        } else {
+            packetDesc = "Lnet/minecraft/network/Packet;";
+            sPacketChatDesc = "Lnet/minecraft/network/play/server/SPacketChat;";
+            entityPlayerMPDesc = "Lnet/minecraft/entity/player/EntityPlayerMP;";
+            netHandlerPlayServer = "net/minecraft/network/NetHandlerPlayServer";
+            player = "player";
+        }
 
         try{
             transformSendPacket(sendPacket);
@@ -54,7 +69,10 @@ public class TransformerSendPacket implements IClassTransformer {
     }
 
     private void transformSendPacket(MethodNode method){
-        ChatCensor.getMinecraftHelper().getLogger().debug("Transforming sendPacket...");
+        if(ChatCensor.getMinecraftHelper() != null)
+            ChatCensor.getMinecraftHelper().getLogger().debug("Transforming sendPacket...");
+        else
+            System.out.println("Transforming sendPacket...");
 
         InsnList instructions = method.instructions;
         int insertionIndex = -1;
@@ -62,14 +80,14 @@ public class TransformerSendPacket implements IClassTransformer {
         int spacketIndex = -1;
 
         for(LocalVariableNode node: method.localVariables) {
-            if (node.desc.equals("Lnet/minecraft/network/Packet;"))
+            if (node.desc.equals(packetDesc))
                 packetInIndex = node.index;
-            else if(node.desc.equals("Lnet/minecraft/network/play/server/SPacketChat;"))
+            else if(node.desc.equals(sPacketChatDesc))
                 spacketIndex = node.index;
         }
 
         for (int index = 0, instrcount = instructions.size(); index < instrcount; index++) {
-            if (checkMethodInstruction(instructions.get(index), INVOKEVIRTUAL, "getChatVisibility", "a") &&
+            if (checkMethodInstruction(instructions.get(index), INVOKEVIRTUAL, "getChatVisibility", "C") &&
                     instructions.get(index - 1).getOpcode() == Opcodes.GETFIELD
             ) {
                 insertionIndex = index + 1;
@@ -84,13 +102,16 @@ public class TransformerSendPacket implements IClassTransformer {
         if (spacketIndex < 0)
             throw new IllegalStateException("Could not find spacketchat index.");
 
-        ChatCensor.getMinecraftHelper().getLogger().debug("Found insertion point at " + insertionIndex + ".");
+        if(ChatCensor.getMinecraftHelper() != null)
+            ChatCensor.getMinecraftHelper().getLogger().debug("Found insertion point at " + insertionIndex + ".");
+        else
+            System.out.println("Found insertion point at " + insertionIndex + ".");
 
         InsnList inserted = new InsnList();
         inserted.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        inserted.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/network/NetHandlerPlayServer", "player", "Lnet/minecraft/entity/player/EntityPlayerMP;"));
+        inserted.add(new FieldInsnNode(Opcodes.GETFIELD, netHandlerPlayServer, player, entityPlayerMPDesc));
         inserted.add(new VarInsnNode(Opcodes.ALOAD, spacketIndex));
-        inserted.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "the_fireplace/chatfilter/util/NetworkUtils", "createModifiedChat", "(Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/network/play/server/SPacketChat;)Lnet/minecraft/network/play/server/SPacketChat;", false));
+        inserted.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "the_fireplace/chatfilter/util/NetworkUtils", "createModifiedChat", '('+entityPlayerMPDesc+sPacketChatDesc+')'+sPacketChatDesc, false));
         inserted.add(new VarInsnNode(Opcodes.ASTORE, packetInIndex));
 
         instructions.insert(instructions.get(insertionIndex), inserted);
@@ -105,14 +126,8 @@ public class TransformerSendPacket implements IClassTransformer {
         return name.equals(name1) || name.equals(name2);
     }
 
-    private static void validateLabel(AbstractInsnNode insertNode){
-        if (!(insertNode instanceof LabelNode))
-            throw new IllegalStateException("Invalid insertion point node, expected label, got: " + insertNode.getClass().getSimpleName());
-    }
-
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void logMethods(String missingMethod, ClassNode owner){
-        if(ChatCensor.getMinecraftHelper() != null && ChatCensor.getMinecraftHelper().getLogger() != null) {
+        if(ChatCensor.getMinecraftHelper() != null) {
             ChatCensor.getMinecraftHelper().getLogger().error("Chat Filter could not find NetHandlerPlayServer.{}, generating debug logs...", missingMethod);
 
             for (MethodNode method : owner.methods)
@@ -125,7 +140,6 @@ public class TransformerSendPacket implements IClassTransformer {
         }
     }
 
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void logInstructions(MethodNode method){
         TraceMethodVisitor visitor = new TraceMethodVisitor(new Textifier());
 
@@ -136,7 +150,7 @@ public class TransformerSendPacket implements IClassTransformer {
         int index = 0;
 
         for(Object obj:visitor.p.getText())
-            if(ChatCensor.getMinecraftHelper() != null && ChatCensor.getMinecraftHelper().getLogger() != null)
+            if(ChatCensor.getMinecraftHelper() != null)
                 ChatCensor.getMinecraftHelper().getLogger().error("> {}: {}", ++index, StringUtils.stripEnd(obj.toString(), null));
             else
                 System.err.println(String.format("> %s: %s", ++index, StringUtils.stripEnd(obj.toString(), null)));
