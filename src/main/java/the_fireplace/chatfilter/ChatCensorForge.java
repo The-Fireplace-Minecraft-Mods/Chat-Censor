@@ -26,7 +26,7 @@ public final class ChatCensorForge {
     public static ChatCensorForge instance;
 
     private static Logger LOGGER = FMLLog.log;
-    boolean validJar = true;
+    private boolean validJar = true;
 
     public static Logger getLogger() {
         return LOGGER;
