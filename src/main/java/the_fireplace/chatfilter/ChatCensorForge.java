@@ -3,11 +3,9 @@ package the_fireplace.chatfilter;
 import com.google.common.collect.Lists;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.common.event.*;
 import org.apache.logging.log4j.Logger;
 import the_fireplace.chatfilter.abstraction.IConfig;
 import the_fireplace.chatfilter.forge.ForgePermissionHandler;
@@ -17,16 +15,18 @@ import the_fireplace.chatfilter.sponge.SpongePermissionHandler;
 import the_fireplace.chatfilter.util.NetworkUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 import static the_fireplace.chatfilter.ChatCensor.MODID;
 
 @Mod.EventBusSubscriber(modid = MODID)
-@Mod(modid = MODID, name = ChatCensor.MODNAME, version = ChatCensor.VERSION, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*", dependencies="after:spongeapi")
+@Mod(modid = MODID, name = ChatCensor.MODNAME, version = ChatCensor.VERSION, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*", dependencies="after:spongeapi", certificateFingerprint = "51ac068a87f356c56dc733d0c049a9a68bc7245c")
 public final class ChatCensorForge {
     @Mod.Instance(MODID)
     public static ChatCensorForge instance;
 
     private static Logger LOGGER = FMLLog.log;
+    boolean validJar = true;
 
     public static Logger getLogger() {
         return LOGGER;
@@ -38,6 +38,8 @@ public final class ChatCensorForge {
         ChatCensor.setConfig(new cfg());
         LOGGER = event.getModLog();
         NetworkUtils.initCensoredMap();
+        if(!validJar)
+            ChatCensor.getMinecraftHelper().getLogger().error("The jar's signature is invalid! Please redownload from "+Objects.requireNonNull(Loader.instance().activeModContainer()).getUpdateUrl());
     }
 
     @Mod.EventHandler
@@ -56,6 +58,13 @@ public final class ChatCensorForge {
     @Mod.EventHandler
     public void onServerStop(FMLServerStoppingEvent event) {
         ServerEventLogic.onServerStopping();
+    }
+
+    @Mod.EventHandler
+    public void invalidFingerprint(FMLFingerprintViolationEvent e) {
+        if(!e.isDirectory()) {
+            validJar = false;
+        }
     }
 
     @SuppressWarnings("WeakerAccess")

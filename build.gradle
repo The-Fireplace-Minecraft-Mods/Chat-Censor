@@ -86,33 +86,19 @@ task showVersion {
     outputs.upToDateWhen { false }
 }
 
-def signJar(archivePath) {
-    if (project.hasProperty("keyStoreAlias") && project.hasProperty("keyStore") && project.hasProperty("keyStorePass")) {
-        ant.signjar(
-                jar:                  archivePath,
-                alias:                project.keyStoreAlias,
-                keystore:             project.keyStore,
-                storepass:            project.keyStorePass,
-                preservelastmodified: true
-        )
-    } else {
-        println "WARNING!!!\tCannot sign jar!"
-    }
-}
-
 jar {
     manifest{
         attributes 'FMLCorePlugin': 'the_fireplace.chatfilter.forge.core.ChatCensorCore'
         attributes 'FMLCorePluginContainsFMLMod': 'true'
     }
-    finalizedBy reobfJar
 }
 
-reobfJar {
-    doLast {
-        signJar(jar)
-    }
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
 }
+
+build.dependsOn signJar
 
 curseforge {
   apiKey = project.hasProperty("curseForgeApiKey")? project.curseForgeApiKey : "empty"
