@@ -112,7 +112,7 @@ public class TransformerSendPacket implements IClassTransformer {
 
     @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void logMethods(String missingMethod, ClassNode owner){
-        if(ChatCensor.getMinecraftHelper().getLogger() != null) {
+        if(ChatCensor.getMinecraftHelper() != null && ChatCensor.getMinecraftHelper().getLogger() != null) {
             ChatCensor.getMinecraftHelper().getLogger().error("Chat Filter could not find NetHandlerPlayServer.{}, generating debug logs...", missingMethod);
 
             for (MethodNode method : owner.methods)
@@ -136,7 +136,7 @@ public class TransformerSendPacket implements IClassTransformer {
         int index = 0;
 
         for(Object obj:visitor.p.getText())
-            if(ChatCensor.getMinecraftHelper().getLogger() != null)
+            if(ChatCensor.getMinecraftHelper() != null && ChatCensor.getMinecraftHelper().getLogger() != null)
                 ChatCensor.getMinecraftHelper().getLogger().error("> {}: {}", ++index, StringUtils.stripEnd(obj.toString(), null));
             else
                 System.err.println(String.format("> %s: %s", ++index, StringUtils.stripEnd(obj.toString(), null)));
