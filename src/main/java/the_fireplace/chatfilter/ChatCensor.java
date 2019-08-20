@@ -5,9 +5,9 @@ import the_fireplace.chatfilter.abstraction.IMinecraftHelper;
 import the_fireplace.chatfilter.abstraction.IPermissionHandler;
 
 public final class ChatCensor {
-    public static final String MODID = "chatsensor";
+    public static final String MODID = "chatcensor";
     @SuppressWarnings("WeakerAccess")
-    public static final String MODNAME = "ChatSensor";
+    public static final String MODNAME = "ChatCensor";
     static final String VERSION = "${version}";
     private static IMinecraftHelper minecraftHelper;
     private static IConfig config;
