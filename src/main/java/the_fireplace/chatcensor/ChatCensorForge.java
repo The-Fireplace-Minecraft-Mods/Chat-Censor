@@ -73,7 +73,7 @@ public final class ChatCensorForge {
         //General mod configuration
         @Config.Comment("Server locale - the client's locale takes precedence if Chat Censor is installed there.")
         public static String locale = "en_us";
-        @Config.Comment("The strings that should be censored for players that have censoring enabled")
+        @Config.Comment("The strings that should be censored for players that have censoring enabled.")
         public static String[] stingsToCensor = {"fuck", "shit", "bitch", "nigger", "dick", "crap", "cunt", "pussy", "niglet", "beaner", "wetback", "spic", "nazi", "faggot", "fag", "towelhead"};
         @Config.Comment("Using this will save CPU at the cost of slightly increased memory usage.")
         public static boolean useCache = true;

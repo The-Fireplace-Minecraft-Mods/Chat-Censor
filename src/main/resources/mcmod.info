@@ -9,5 +9,15 @@
   "url": "",
   "authorList": ["The_Fireplace"],
   "screenshots": []
+},{
+  "modid": "chatcensorsponge",
+  "name": "Chat Censor",
+  "description": "A plugin to censor chat and allow users to decide if they want to see censored chat.",
+  "version": "${version}",
+  "mcversion": "",
+  "logoFile": "",
+  "url": "",
+  "authorList": ["The_Fireplace"],
+  "screenshots": []
 }
 ]

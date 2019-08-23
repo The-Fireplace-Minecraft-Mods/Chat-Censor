@@ -39,6 +39,6 @@ public class CommandToggleCensor extends CommandBase {
 
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-        return sender instanceof EntityPlayerMP && (!PermissionManager.permissionManagementExists() || PermissionManager.hasPermission((EntityPlayerMP) sender, "commands.togglecensor"));
+        return sender instanceof EntityPlayerMP && (!PermissionManager.permissionManagementExists() || PermissionManager.hasPermission((EntityPlayerMP) sender, "command.togglecensor"));
     }
 }

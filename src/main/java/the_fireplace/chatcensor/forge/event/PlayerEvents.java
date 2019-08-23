@@ -10,7 +10,7 @@ import the_fireplace.chatcensor.logic.PlayerEventLogic;
 public class PlayerEvents {
     @SubscribeEvent
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        PlayerEventLogic.onPlayerLoggedIn(event.player);
+        PlayerEventLogic.onPlayerLoggedIn(event.player.getUniqueID());
     }
 
     @SubscribeEvent

@@ -6,12 +6,17 @@ buildscript {
             url = "http://files.minecraftforge.net/maven"
         }
         maven {
+            name = 'sponge'
+            url = 'https://repo.spongepowered.org/maven'
+        }
+        maven {
             name = "Modmuss50"
             url = "http://maven.modmuss50.me/"
         }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
         classpath 'ModsIOUpload:ModsIOUpload:+'
     }
 }
@@ -20,9 +25,10 @@ plugins {
     id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'net.cazzar.gradle.modsio'
 
-version = "1.0.0"
+version = "1.0.1"
 group = "the_fireplace.chatcensor"
 archivesBaseName = "ChatCensor-1.12.2"
 
@@ -43,6 +49,7 @@ minecraft {
 
 dependencies {
     provided 'org.spongepowered:spongeapi:7.1.0'
+    compile 'org.spongepowered:mixin:0.7.11-SNAPSHOT'
 }
 
 repositories {
@@ -68,28 +75,16 @@ processResources
     }
 }
 
-task showVersion {
-    description "Displays the current version"
-    group "help"
-
-    compileJava.dependsOn showVersion
-    deobfCompileDummyTask.dependsOn showVersion
-    extractMcpMappings.dependsOn showVersion
-
-    doLast {
-        def versionFile = new File(buildDir, '.version')
-
-        versionFile.getParentFile().mkdirs()
-        versionFile.text = version
-    }
-
-    outputs.upToDateWhen { false }
+mixin {
+    add sourceSets.main, "mixins.chatcensor.refmap.json"
 }
 
 jar {
     manifest{
-        attributes 'FMLCorePlugin': 'the_fireplace.chatfilter.forge.core.ChatCensorCore'
+        attributes 'FMLCorePlugin': 'the_fireplace.chatcensor.forge.core.ChatCensorCore'
         attributes 'FMLCorePluginContainsFMLMod': 'true'
+        attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
+        attributes 'MixinConfigs': 'mixins.chatcensor.json'
     }
 }
 

@@ -8,7 +8,7 @@ import the_fireplace.chatcensor.abstraction.IPermissionHandler;
 public class ForgePermissionHandler implements IPermissionHandler {
 
     public ForgePermissionHandler() {
-        registerPermission("commands.togglecensor", DefaultPermissionLevel.ALL, "");
+        registerPermission("command.togglecensor", DefaultPermissionLevel.ALL, "");
     }
 
     @Override
