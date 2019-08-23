@@ -16,7 +16,8 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6+'
+        classpath 'org.spongepowered:spongegradle:0.8.1'
         classpath 'ModsIOUpload:ModsIOUpload:+'
     }
 }
@@ -26,6 +27,8 @@ plugins {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'org.spongepowered.gradle'
+apply plugin: 'org.spongepowered.plugin'
 apply plugin: 'net.cazzar.gradle.modsio'
 
 version = "1.0.1"
@@ -48,7 +51,12 @@ minecraft {
 }
 
 dependencies {
-    provided 'org.spongepowered:spongeapi:7.1.0'
+	compile ("org.spongepowered:spongeforge:1.12.2-2838-7.1.7-RC3890:dev") {
+        exclude module: 'testplugins'
+	    exclude module: 'testmods'
+    }
+    compile 'org.spongepowered:configurate-json:3.5'
+    //provided 'org.spongepowered:spongeapi:7.1.0'
     compile 'org.spongepowered:mixin:0.7.11-SNAPSHOT'
 }
 
