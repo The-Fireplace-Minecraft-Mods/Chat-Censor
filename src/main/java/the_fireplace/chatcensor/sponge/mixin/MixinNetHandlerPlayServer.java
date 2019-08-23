@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import the_fireplace.chatcensor.util.NetworkUtils;
 
 @Mixin(NetHandlerPlayServer.class)
 public class MixinNetHandlerPlayServer {
@@ -19,6 +18,6 @@ public class MixinNetHandlerPlayServer {
 
     @Inject(method="sendPacket", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/player/EntityPlayerMP;getChatVisibility()Lnet/minecraft/entity/player/EntityPlayer$EnumChatVisibility;", ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT, constraints = "USECHATCENSORMIXIN(1)")
     public void onSendPacket(SPacketChat spacketchat, CallbackInfo ci) {
-        spacketchat = NetworkUtils.createModifiedChat(player, spacketchat);
+        spacketchat = the_fireplace.chatcensor.util.NetworkUtils.createModifiedChat(player, spacketchat);
     }
 }
