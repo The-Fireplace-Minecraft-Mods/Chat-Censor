@@ -79,7 +79,7 @@ processResources
 }
 
 mixin {
-    add sourceSets.main, "mixins.chatcensor.refmap.json"
+    add sourceSets.main, "mixins.chatcensorsponge.refmap.json"
 }
 
 jar {
@@ -87,7 +87,7 @@ jar {
         attributes 'FMLCorePlugin': 'the_fireplace.chatcensor.forge.core.ChatCensorCore'
         attributes 'FMLCorePluginContainsFMLMod': 'true'
         attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
-        attributes 'MixinConfigs': 'mixins.chatcensor.json'
+        attributes 'MixinConfigs': 'mixins.chatcensorsponge.json'
     }
 }
 

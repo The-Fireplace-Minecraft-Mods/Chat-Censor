@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.7.10",
   "package": "the_fireplace.chatcensor.sponge.mixin",
-  "refmap": "mixins.chatcensor.refmap.json",
+  "refmap": "mixins.chatcensorsponge.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "server": [
