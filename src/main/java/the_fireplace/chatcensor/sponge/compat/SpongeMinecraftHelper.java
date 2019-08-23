@@ -5,11 +5,12 @@ import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Sponge;
 import the_fireplace.chatcensor.ChatCensorSponge;
 import the_fireplace.chatcensor.abstraction.IMinecraftHelper;
+import the_fireplace.chatcensor.sponge.SpongeConverter;
 
 public class SpongeMinecraftHelper implements IMinecraftHelper {
     @Override
     public MinecraftServer getServer() {
-        return (MinecraftServer)Sponge.getServer();//TODO test
+        return SpongeConverter.server(Sponge.getServer());
     }
 
     @Override

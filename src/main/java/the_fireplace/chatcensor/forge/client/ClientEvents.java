@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import the_fireplace.chatcensor.ChatCensor;
-import the_fireplace.chatcensor.util.NetworkUtils;
+import the_fireplace.chatcensor.util.CensorHelper;
 
 @Mod.EventBusSubscriber(value = Side.CLIENT, modid = ChatCensor.MODID)
 public class ClientEvents {
@@ -15,7 +15,7 @@ public class ClientEvents {
     public static void configChanged(ConfigChangedEvent event) {
         if (event.getModID().equals(ChatCensor.MODID)) {
             ConfigManager.sync(ChatCensor.MODID, Config.Type.INSTANCE);
-            NetworkUtils.initCensoredMap();
+            CensorHelper.initCensoredMap();
         }
     }
 }

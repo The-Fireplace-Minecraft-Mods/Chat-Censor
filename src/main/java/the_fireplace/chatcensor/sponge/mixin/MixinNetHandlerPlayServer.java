@@ -19,7 +19,7 @@ public class MixinNetHandlerPlayServer {
     public EntityPlayerMP player;
 
     @Inject(method="sendPacket", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/player/EntityPlayerMP;getChatVisibility()Lnet/minecraft/entity/player/EntityPlayer$EnumChatVisibility;", ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT/*, constraints = "USECHATCENSORMIXIN(1)"*/)
-    public void onSendPacket(final Packet<?> packetIn, CallbackInfo ci, SPacketChat spacketchat, EntityPlayer.EnumChatVisibility entityplayer$enumchatvisibility) {
-        spacketchat = the_fireplace.chatcensor.util.NetworkUtils.createModifiedChat(player, spacketchat);
+    public void onSendPacket(Packet<?> packetIn, CallbackInfo ci, SPacketChat spacketchat, EntityPlayer.EnumChatVisibility entityplayer$enumchatvisibility) {
+        packetIn = the_fireplace.chatcensor.util.NetworkUtils.createModifiedChat(player, spacketchat);
     }
 }

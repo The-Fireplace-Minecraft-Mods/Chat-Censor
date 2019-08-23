@@ -19,12 +19,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class NetworkUtils {
-    public static HashMap<String, String> censored = Maps.newHashMap();
-    public static void initCensoredMap() {
-        for(String uncensored: ChatCensor.getConfig().getStringsToCensor())
-            censored.put(uncensored, getCensored(uncensored));
-    }
-
     private static HashMap<Integer, ITextComponent> censoredComponents = Maps.newHashMap();
     @SuppressWarnings("unused")
     public static SPacketChat createModifiedChat(EntityPlayerMP chatTarget, SPacketChat original) {
@@ -39,13 +33,15 @@ public class NetworkUtils {
             PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
             original.writePacketData(buf);
             ITextComponent comp = buf.readTextComponent();
-            int initHash = comp.getUnformattedComponentText().hashCode();
+            //getUnformattedComponentText
+            int initHash = comp.getUnformattedText().hashCode();
             //Use the message we have already created if possible.
             if(ChatCensor.getConfig().useCache() && censoredComponents.containsKey(initHash))
                 comp = censoredComponents.get(initHash);
             else {
                 comp = getCensoredTextComponent(comp);
-                if(ChatCensor.getConfig().useCache() && comp.getUnformattedComponentText().hashCode() != initHash)
+                //getUnformattedComponentText
+                if(ChatCensor.getConfig().useCache() && comp.getUnformattedText().hashCode() != initHash)
                     censoredComponents.put(initHash, comp);
             }
             return new SPacketChat(comp, original.getType());
@@ -60,10 +56,12 @@ public class NetworkUtils {
         for(ITextComponent sibling: comp.getSiblings())
             newSiblings.add(getCensoredTextComponent(sibling));
         if (comp instanceof TextComponentString) {
-            String messageString = comp.getUnformattedComponentText();
+            //getUnformattedComponentText
+            String messageString = comp.getUnformattedText();
             for (String censor : ChatCensor.getConfig().getStringsToCensor())
-                messageString = messageString.replaceAll("(?i)" + censor, censored.get(censor));
-            messageString = matchCase(comp.getUnformattedComponentText(), messageString);
+                messageString = messageString.replaceAll("(?i)" + censor, CensorHelper.censored.get(censor));
+            //getUnformattedComponentText
+            messageString = CensorHelper.matchCase(comp.getUnformattedText(), messageString);
             comp = new TextComponentString(messageString).setStyle(comp.getStyle());
         } else if (comp instanceof TextComponentTranslation) {
             Object[] args = ((TextComponentTranslation) comp).getFormatArgs();
@@ -76,19 +74,6 @@ public class NetworkUtils {
         for(ITextComponent sibling: newSiblings)
             comp.appendSibling(sibling);
         return comp;
-    }
-
-    public static String getCensored(String censor) {
-        String sub = censor.substring(1, censor.length()-1);;
-        return censor.substring(0, 1) + sub.replaceAll(".", "*") + censor.substring(censor.length() - 1);
-    }
-
-    public static String matchCase(String correctCase, String formatted) {
-        char[] out = formatted.toCharArray();
-        for(int i=0;i<correctCase.length();i++)
-            if(Character.isLetter(out[i]) && Character.isUpperCase(correctCase.charAt(i)))
-                out[i] = Character.toUpperCase(out[i]);
-        return String.copyValueOf(out);
     }
 
     public static ITextComponent getFormatArgumentAsComponent(int index, Object[] args, Style style)

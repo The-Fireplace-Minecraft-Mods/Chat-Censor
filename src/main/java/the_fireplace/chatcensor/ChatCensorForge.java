@@ -12,7 +12,6 @@ import the_fireplace.chatcensor.forge.ForgePermissionHandler;
 import the_fireplace.chatcensor.forge.compat.ForgeMinecraftHelper;
 import the_fireplace.chatcensor.logic.ServerEventLogic;
 import the_fireplace.chatcensor.sponge.SpongePermissionHandler;
-import the_fireplace.chatcensor.util.NetworkUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +36,6 @@ public final class ChatCensorForge {
         ChatCensor.setMinecraftHelper(new ForgeMinecraftHelper());
         ChatCensor.setConfig(new cfg());
         LOGGER = event.getModLog();
-        NetworkUtils.initCensoredMap();
         if(!validJar)
             ChatCensor.getMinecraftHelper().getLogger().error("The jar's signature is invalid! Please redownload from "+Objects.requireNonNull(Loader.instance().activeModContainer()).getUpdateUrl());
     }

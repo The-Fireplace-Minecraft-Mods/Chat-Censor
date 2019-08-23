@@ -14,10 +14,12 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.util.TypeTokens;
 import the_fireplace.chatcensor.abstraction.IConfig;
+import the_fireplace.chatcensor.logic.ServerEventLogic;
 import the_fireplace.chatcensor.sponge.SpongePermissionHandler;
 import the_fireplace.chatcensor.sponge.compat.SpongeMinecraftHelper;
 import the_fireplace.chatcensor.sponge.listener.NetworkListeners;
@@ -25,10 +27,11 @@ import the_fireplace.chatcensor.sponge.listener.PlayerListeners;
 import the_fireplace.chatcensor.sponge.listener.TimingHandler;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-@Plugin(id = ChatCensor.MODID+"sponge", name = ChatCensor.MODNAME, version = ChatCensor.VERSION, description = "A plugin to censor chat and allow users to decide if they want to see censored chat.", url = "", authors = {"The_Fireplace"}, dependencies = {@Dependency(id=ChatCensor.MODID, optional=true)})
+@Plugin(id = ChatCensor.MODID+"sponge", dependencies = {@Dependency(id=ChatCensor.MODID, optional=true)})
 public final class ChatCensorSponge {
     @Inject
     public static Logger logger;
@@ -41,8 +44,7 @@ public final class ChatCensorSponge {
             active = true;
             ChatCensor.setMinecraftHelper(new SpongeMinecraftHelper());
             ChatCensor.setPermissionManager(new SpongePermissionHandler());
-        } else
-            System.out.println(System.getenv().keySet());
+        }
     }
 
     @Listener
@@ -63,6 +65,14 @@ public final class ChatCensorSponge {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            ServerEventLogic.onServerStarting(ChatCensor.getMinecraftHelper().getServer());
+        }
+    }
+
+    @Listener
+    public void onServerStopping(GameStoppingServerEvent event) {
+        if(active) {
+            ServerEventLogic.onServerStopping();
         }
     }
 
@@ -75,12 +85,13 @@ public final class ChatCensorSponge {
     private void loadConfig() throws IOException {
         boolean needsSaving = false;
         CommentedConfigurationNode root = loader.load(ConfigurationOptions.defaults());
+        URL url = Sponge.getAssetManager()
+                .getAsset(this, "defaults.conf").get()
+                .getUrl();
         if (root.isVirtual()) {
             ConfigurationLoader<CommentedConfigurationNode> defaults =
                     HoconConfigurationLoader.builder()
-                            .setURL(Sponge.getAssetManager()
-                                    .getAsset(this, "default.conf").get()
-                                    .getUrl())
+                            .setURL(url)
                             .build();
             root.mergeValuesFrom(defaults.load(ConfigurationOptions.defaults()));
             needsSaving = true;
@@ -90,9 +101,7 @@ public final class ChatCensorSponge {
         if (group.isVirtual()) {
             ConfigurationLoader<CommentedConfigurationNode> defaults =
                     HoconConfigurationLoader.builder()
-                            .setURL(Sponge.getAssetManager()
-                                    .getAsset(this, "default.conf").get()
-                                    .getUrl())
+                            .setURL(url)
                             .build();
             CommentedConfigurationNode defgroup = defaults.load(ConfigurationOptions.defaults()).getNode("general");
             group.mergeValuesFrom(defgroup);
