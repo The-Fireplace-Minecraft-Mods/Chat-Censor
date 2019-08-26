@@ -27,7 +27,6 @@ import the_fireplace.chatcensor.sponge.listener.PlayerListeners;
 import the_fireplace.chatcensor.sponge.listener.TimingHandler;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,13 +84,12 @@ public final class ChatCensorSponge {
     private void loadConfig() throws IOException {
         boolean needsSaving = false;
         CommentedConfigurationNode root = loader.load(ConfigurationOptions.defaults());
-        URL url = Sponge.getAssetManager()
-                .getAsset(this, "defaults.conf").get()
-                .getUrl();
         if (root.isVirtual()) {
             ConfigurationLoader<CommentedConfigurationNode> defaults =
                     HoconConfigurationLoader.builder()
-                            .setURL(url)
+                            .setURL(Sponge.getAssetManager()
+                                    .getAsset(this, "defaults.conf").get()
+                                    .getUrl())
                             .build();
             root.mergeValuesFrom(defaults.load(ConfigurationOptions.defaults()));
             needsSaving = true;
@@ -101,7 +99,9 @@ public final class ChatCensorSponge {
         if (group.isVirtual()) {
             ConfigurationLoader<CommentedConfigurationNode> defaults =
                     HoconConfigurationLoader.builder()
-                            .setURL(url)
+                            .setURL(Sponge.getAssetManager()
+                                    .getAsset(this, "defaults.conf").get()
+                                    .getUrl())
                             .build();
             CommentedConfigurationNode defgroup = defaults.load(ConfigurationOptions.defaults()).getNode("general");
             group.mergeValuesFrom(defgroup);
