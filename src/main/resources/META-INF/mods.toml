@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[28,)"
+issueTrackerURL="https://github.com/The-Fireplace-Minecraft-Mods/Chat-Censor/issues"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/chat-censor"
+credits=""
+authors="The_Fireplace"
+
+[[mods]] #mandatory
+modId="chatcensor"
+version="${file.jarVersion}"
+displayName="Chat Censor"
+description='''
+A server-side mod to censor chat and allow users to decide if they want to see censored chat.
+'''
+
+[[dependencies.grandeconomy]]
+    modId="forge"
+    mandatory=true
+    versionRange="[28,)"
+    ordering="NONE"
+    side="SERVER"
+[[dependencies.grandeconomy]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.14.4]"
+    ordering="NONE"
+    side="SERVER"

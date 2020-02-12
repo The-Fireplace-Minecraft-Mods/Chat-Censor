@@ -1,3 +1,0 @@
-commands.togglecensor.usage=/togglecensor
-commands.togglecensor.censored=Messages you see will now be censored.
-commands.togglecensor.uncensored=Messages you see will no longer be censored.

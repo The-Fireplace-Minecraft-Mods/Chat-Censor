@@ -1,6 +1,6 @@
 package the_fireplace.chatcensor.sponge;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
@@ -22,7 +22,7 @@ public class SpongePermissionHandler implements IPermissionHandler {
     }
 
     @Override
-    public boolean hasPermission(EntityPlayerMP player, String permissionName) {
+    public boolean hasPermission(ServerPlayerEntity player, String permissionName) {
         if(permissionManagementExists() && player instanceof Subject)
             return ((Subject) player).hasPermission(permissionName);
         return true;

@@ -1,11 +1,12 @@
 package the_fireplace.chatcensor.util.translation;
 
 import com.google.common.collect.Lists;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.ICommandSource;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -16,31 +17,38 @@ public class TranslationUtil {
     public static List<UUID> chatCensorClients = Lists.newArrayList();
 
     /**
-     * Gets the translation for the given key and arguments and returns the unformatted string.
+     * Gets the translation for the given key and arguments and returns the formatted string.
      */
     public static String getStringTranslation(String translationKey, Object... args) {
-        return getTranslation(translationKey, args).getUnformattedText();
+        return getTranslation(translationKey, args).getFormattedText();
     }
 
     /**
-     * Gets the translation for the given key and arguments and returns the unformatted string.
+     * Gets the translation for the given key and arguments and returns the formatted string.
      */
-    public static String getStringTranslation(ICommandSender sender, String translationKey, Object... args) {
-        return getTranslation(sender, translationKey, args).getUnformattedText();
+    public static String getStringTranslation(CommandSource target, String translationKey, Object... args) {
+        return target.getEntity() != null ? getStringTranslation(target.getEntity(), translationKey, args) : getStringTranslation(target.getServer(), translationKey, args);
     }
 
     /**
-     * Gets the translation for the given key and arguments and returns the unformatted string.
+     * Gets the translation for the given key and arguments and returns the formatted string.
+     */
+    public static String getStringTranslation(ICommandSource target, String translationKey, Object... args) {
+        return getTranslation(target, translationKey, args).getFormattedText();
+    }
+
+    /**
+     * Gets the translation for the given key and arguments and returns the formatted string.
      */
     public static String getStringTranslation(@Nullable UUID target, String translationKey, Object... args) {
-        return getTranslation(target, translationKey, args).getUnformattedText();
+        return getTranslation(target, translationKey, args).getUnformattedComponentText();
     }
 
     /**
      * Returns the translation key if the sender is able to translate it, or the translated string otherwise.
      */
-    public static String getRawTranslationString(@Nullable ICommandSender sender, String translationKey) {
-        return getRawTranslationString(sender instanceof EntityPlayerMP ? ((EntityPlayerMP) sender).getUniqueID() : null, translationKey);
+    public static String getRawTranslationString(ICommandSource target, String translationKey) {
+        return getRawTranslationString(target instanceof ServerPlayerEntity ? ((ServerPlayerEntity) target).getUniqueID() : null, translationKey);
     }
 
     /**
@@ -54,26 +62,33 @@ public class TranslationUtil {
     }
 
     /**
-     * Returns the translated TextComponentString for the supplied key and arguments
+     * Returns the translated StringTextComponent for the supplied key and arguments
      */
     public static ITextComponent getTranslation(String translationKey, Object... args) {
         return getTranslation((UUID)null, translationKey, args);
     }
 
     /**
-     * Returns the TextComponentTranslation if the target is able to translate it, or the translated TextComponentString otherwise.
+     * Returns the TranslationTextComponent if the target is able to translate it, or the translated StringTextComponent otherwise.
      */
-    public static ITextComponent getTranslation(ICommandSender target, String translationKey, Object... args) {
-        return getTranslation(target instanceof EntityPlayerMP ? ((EntityPlayerMP) target).getUniqueID() : null, translationKey, args);
+    public static ITextComponent getTranslation(CommandSource target, String translationKey, Object... args) {
+        return target.getEntity() != null ? getTranslation(target.getEntity(), translationKey, args) : getTranslation(target.getServer(), translationKey, args);
     }
 
     /**
-     * Returns the TextComponentTranslation if the target is able to translate it, or the translated TextComponentString otherwise.
+     * Returns the TranslationTextComponent if the target is able to translate it, or the translated StringTextComponent otherwise.
+     */
+    public static ITextComponent getTranslation(ICommandSource target, String translationKey, Object... args) {
+        return getTranslation(target instanceof ServerPlayerEntity ? ((ServerPlayerEntity) target).getUniqueID() : null, translationKey, args);
+    }
+
+    /**
+     * Returns the TranslationTextComponent if the target is able to translate it, or the translated StringTextComponent otherwise.
      */
     public static ITextComponent getTranslation(@Nullable UUID target, String translationKey, Object... args) {
         if(target == null || !chatCensorClients.contains(target))
-            return new TextComponentString(I18n.translateToLocalFormatted(translationKey, args));
+            return new StringTextComponent(I18n.translateToLocalFormatted(translationKey, args));
         else
-            return new TextComponentTranslation(translationKey, args);
+            return new TranslationTextComponent(translationKey, args);
     }
 }

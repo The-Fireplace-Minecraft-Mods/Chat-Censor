@@ -6,18 +6,12 @@ buildscript {
             url = "http://files.minecraftforge.net/maven"
         }
         maven {
-            name = 'sponge'
-            url = 'https://repo.spongepowered.org/maven'
-        }
-        maven {
             name = "Modmuss50"
             url = "http://maven.modmuss50.me/"
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.6+'
-        classpath 'org.spongepowered:spongegradle:0.8.1'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
         classpath 'ModsIOUpload:ModsIOUpload:+'
     }
 }
@@ -25,15 +19,12 @@ buildscript {
 plugins {
     id "com.matthewprenger.cursegradle" version "1.4.0"
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'org.spongepowered.gradle'
-apply plugin: 'org.spongepowered.plugin'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'net.cazzar.gradle.modsio'
 
 version = "1.0.1"
 group = "the_fireplace.chatcensor"
-archivesBaseName = "ChatCensor-1.12.2"
+archivesBaseName = "ChatCensor-1.14.4"
 
 allprojects {
     sourceCompatibility = 1.8
@@ -41,18 +32,31 @@ allprojects {
 }
 
 minecraft {
-    version = "1.12.2-14.23.5.2768"
-    runDir = "run"
-    replace '${version}', project.version
-    mappings = "stable_39"
-    makeObfSourceJar = false
-	
-	clientRunArgs += "--uuid=0b1ec5ad-cb2a-43b7-995d-889320eb2e5b --username=The_Fireplace"
+    mappings channel: 'snapshot', version: '20191124-1.14.3'
+    
+    runs {
+        client = {
+            // recommended logging data for a userdev environment
+            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // recommended logging level for the console
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+        server = {
+            // recommended logging data for a userdev environment
+            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // recommended logging level for the console
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+    }
 }
 
 dependencies {
-    provided 'org.spongepowered:spongeapi:7.1.0'
-    compile 'org.spongepowered:mixin:0.7.11-SNAPSHOT'
+    minecraft 'net.minecraftforge:forge:1.14.4-28.1.114'
+    compile 'org.spongepowered:spongeapi:7.1.0'
 }
 
 repositories {
@@ -62,36 +66,21 @@ repositories {
     maven { url 'https://repo.spongepowered.org/maven' }
 }
 
-processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
-
-mixin {
-    add sourceSets.main, "mixins.chatcensorsponge.refmap.json"
-}
-
 jar {
     manifest{
-        attributes 'FMLCorePlugin': 'the_fireplace.chatcensor.forge.core.ChatCensorCore'
-        attributes 'FMLCorePluginContainsFMLMod': 'true'
-        attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
-        attributes 'MixinConfigs': 'mixins.chatcensorsponge.json'
+        attributes(["FMLCorePlugin": "the_fireplace.chatcensor.forge.core.ChatCensorCore",
+                    "FMLCorePluginContainsFMLMod": "true",
+                    "Specification-Title": "chatcensor",
+                    "Specification-Vendor": "The_Fireplace",
+                    "Specification-Version": "24.0", // We are version 1 of the modlauncher specification
+                    "Implementation-Title": "Chat Censor",
+                    "Implementation-Version": "${version}",
+                    "Implementation-Vendor" : "The_Fireplace",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
     }
 }
 
-task signJar(type: SignJar, dependsOn: reobfJar) {
+/*task signJar(type: SignJar, dependsOn: reobfJar) {
 	alias = project.alias
 	storePass = project.storePass
 	keyPass = project.keyPass
@@ -101,15 +90,15 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     outputFile = jar.archivePath
 }
 
-build.dependsOn signJar
+build.dependsOn signJar*/
 
 curseforge {
   apiKey = project.hasProperty("curseForgeApiKey")? project.curseForgeApiKey : "empty"
   project {
-    id = '000000'
+    id = '340070'
     changelog = file('changelog.txt')
     releaseType = 'release'
-    addGameVersion '1.12.2'
+    addGameVersion '1.14.4'
 	addGameVersion 'Java 8'
     mainArtifact(jar) {
         displayName = jar.archiveName.replace(".jar", "")
@@ -121,8 +110,8 @@ modsIO {
     key = project.hasProperty("modsioApiKey")? project.modsioApiKey : "empty"
     project{
 		artifact = new File(jar.destinationDir, archivesBaseName+"-"+version+".jar")
-		modid = "0000"
-		minecraft = "1.12.2"
+		modid = "1282"
+		minecraft = "1.14.4"
 		try{changelog = file('changelog.txt').text}catch(Exception ignored){changelog=""}
 		tag = ""
 		current = true

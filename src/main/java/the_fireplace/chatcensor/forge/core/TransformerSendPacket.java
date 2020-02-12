@@ -1,6 +1,5 @@
 package the_fireplace.chatcensor.forge.core;
 
-import net.minecraft.launchwrapper.IClassTransformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassReader;

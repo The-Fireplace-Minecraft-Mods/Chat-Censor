@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.minecraft.world.dimension.DimensionType;
 import the_fireplace.chatcensor.ChatCensor;
 
 import java.io.*;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 public final class PlayerDataManager {
     private static HashMap<UUID, PlayerData> playerData = Maps.newHashMap();
-    private static final File playerDataLocation = new File(ChatCensor.getMinecraftHelper().getServer().getWorld(0).getSaveHandler().getWorldDirectory(), "chatcensor/player");
+    private static final File playerDataLocation = new File(ChatCensor.getMinecraftHelper().getServer().getWorld(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory(), "chatcensor/player");
 
     //region getters
     public static boolean getIgnoresCensor(UUID player) {

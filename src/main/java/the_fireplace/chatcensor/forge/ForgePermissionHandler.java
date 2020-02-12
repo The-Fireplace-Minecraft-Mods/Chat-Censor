@@ -1,6 +1,6 @@
 package the_fireplace.chatcensor.forge;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 import the_fireplace.chatcensor.abstraction.IPermissionHandler;
@@ -12,7 +12,7 @@ public class ForgePermissionHandler implements IPermissionHandler {
     }
 
     @Override
-    public boolean hasPermission(EntityPlayerMP player, String permissionName) {
+    public boolean hasPermission(ServerPlayerEntity player, String permissionName) {
         return PermissionAPI.hasPermission(player, permissionName);
     }
 

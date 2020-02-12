@@ -1,65 +1,42 @@
 package the_fireplace.chatcensor.util.translation;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.apache.commons.io.IOUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import net.minecraft.util.JSONUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import the_fireplace.chatcensor.ChatCensor;
 
-import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.IllegalFormatException;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
 public class ChatCensorLanguageMap {
+    private static final Logger LOGGER = LogManager.getLogger();
     /** Pattern that matches numeric variable placeholders in a resource string, such as "%d", "%3$d", "%.2f" */
-    @SuppressWarnings("RegExpRedundantEscape")
     private static final Pattern NUMERIC_VARIABLE_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d\\.]*[df]");
-    /** A Splitter that splits a string on the first "=".  For example, "a=b=c" would split into ["a", "b=c"]. */
-    private static final Splitter EQUAL_SIGN_SPLITTER = Splitter.on('=').limit(2);
     private static final ChatCensorLanguageMap instance = new ChatCensorLanguageMap(ChatCensor.getConfig().getLocale());
     private final Map<String, String> languageList = Maps.newHashMap();
 
     ChatCensorLanguageMap(String locale) {
-        InputStream inputstream = ChatCensorLanguageMap.class.getResourceAsStream("/assets/chatcensor/lang/" + locale + ".lang");
-        inject(this, inputstream);
-    }
+        try (InputStream inputstream = ChatCensorLanguageMap.class.getResourceAsStream("/assets/chatcensor/lang/" + locale + ".json")) {
+            JsonElement jsonelement = (new Gson()).fromJson(new InputStreamReader(inputstream, StandardCharsets.UTF_8), JsonElement.class);
+            JsonObject jsonobject = JSONUtils.getJsonObject(jsonelement, "strings");
 
-    public static void inject(InputStream inputstream) {
-        inject(instance, inputstream);
-    }
-
-    private static void inject(ChatCensorLanguageMap inst, InputStream inputstream) {
-        Map<String, String> map = parseLangFile(inputstream);
-        inst.languageList.putAll(map);
-    }
-
-    private static Map<String, String> parseLangFile(InputStream inputstream) {
-        Map<String, String> table = Maps.newHashMap();
-        try {
-            inputstream = loadLanguage(table, inputstream);
-            if (inputstream == null) return table;
-
-            for (String s : IOUtils.readLines(inputstream, StandardCharsets.UTF_8)) {
-                if (!s.isEmpty() && s.charAt(0) != '#') {
-                    String[] astring = Iterables.toArray(EQUAL_SIGN_SPLITTER.split(s), String.class);
-
-                    if (astring != null && astring.length == 2) {
-                        String s1 = astring[0];
-                        String s2 = NUMERIC_VARIABLE_PATTERN.matcher(astring[1]).replaceAll("%$1s");
-                        table.put(s1, s2);
-                    }
-                }
+            for(Map.Entry<String, JsonElement> entry : jsonobject.entrySet()) {
+                String s = NUMERIC_VARIABLE_PATTERN.matcher(JSONUtils.getString(entry.getValue(), entry.getKey())).replaceAll("%$1s");
+                this.languageList.put(entry.getKey(), s);
             }
-
-        } catch (Exception ignored) {}
-        return table;
+        } catch (JsonParseException | IOException ioexception) {
+            LOGGER.error("/assets/chatcensor/lang/" + locale + ".json", ioexception);
+        }
     }
 
     static ChatCensorLanguageMap getInstance() {
@@ -83,47 +60,5 @@ public class ChatCensorLanguageMap {
 
     synchronized boolean isKeyTranslated(String key) {
         return this.languageList.containsKey(key);
-    }
-
-    /**
-     * Loads a lang file, first searching for a marker to enable the 'extended' format {escape characters}
-     * If the marker is not found it simply returns and let the vanilla code load things.
-     * The Marker is 'PARSE_ESCAPES' by itself on a line starting with '#' as such:
-     * #PARSE_ESCAPES
-     *
-     * @param table The Map to load each key/value pair into.
-     * @param inputstream Input stream containing the lang file.
-     * @return A new InputStream that vanilla uses to load normal Lang files, Null if this is a 'enhanced' file and loading is done.
-     */
-    @Nullable
-    private static InputStream loadLanguage(Map<String, String> table, InputStream inputstream) throws IOException
-    {
-        byte[] data = IOUtils.toByteArray(inputstream);
-
-        boolean isEnhanced = false;
-        for (String line : IOUtils.readLines(new ByteArrayInputStream(data), StandardCharsets.UTF_8))
-        {
-            if (!line.isEmpty() && line.charAt(0) == '#')
-            {
-                line = line.substring(1).trim();
-                if (line.equals("PARSE_ESCAPES"))
-                {
-                    isEnhanced = true;
-                    break;
-                }
-            }
-        }
-
-        if (!isEnhanced)
-            return new ByteArrayInputStream(data);
-
-        Properties props = new Properties();
-        props.load(new InputStreamReader(new ByteArrayInputStream(data), StandardCharsets.UTF_8));
-        for (Map.Entry<Object, Object> e : props.entrySet())
-        {
-            table.put((String)e.getKey(), (String)e.getValue());
-        }
-        props.clear();
-        return null;
     }
 }

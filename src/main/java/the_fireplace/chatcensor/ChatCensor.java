@@ -6,9 +6,6 @@ import the_fireplace.chatcensor.abstraction.IPermissionHandler;
 
 public final class ChatCensor {
     public static final String MODID = "chatcensor";
-    @SuppressWarnings("WeakerAccess")
-    public static final String MODNAME = "ChatCensor";
-    static final String VERSION = "${version}";
     private static IMinecraftHelper minecraftHelper;
     private static IConfig config;
     private static IPermissionHandler permissionManager;
