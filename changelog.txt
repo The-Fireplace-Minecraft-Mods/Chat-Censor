@@ -1,1 +1,1 @@
-Initial release
+Added easier methods for API

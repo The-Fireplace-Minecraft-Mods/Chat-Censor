@@ -6,18 +6,12 @@ buildscript {
             url = "http://files.minecraftforge.net/maven"
         }
         maven {
-            name = 'sponge'
-            url = 'https://repo.spongepowered.org/maven'
-        }
-        maven {
             name = "Modmuss50"
             url = "http://maven.modmuss50.me/"
         }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.6+'
-        classpath 'org.spongepowered:spongegradle:0.8.1'
         classpath 'ModsIOUpload:ModsIOUpload:+'
     }
 }
@@ -26,12 +20,9 @@ plugins {
     id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'org.spongepowered.gradle'
-apply plugin: 'org.spongepowered.plugin'
 apply plugin: 'net.cazzar.gradle.modsio'
 
-version = "1.0.1"
+version = "1.0.2"
 group = "the_fireplace.chatcensor"
 archivesBaseName = "ChatCensor-1.12.2"
 
@@ -52,7 +43,6 @@ minecraft {
 
 dependencies {
     provided 'org.spongepowered:spongeapi:7.1.0'
-    compile 'org.spongepowered:mixin:0.7.11-SNAPSHOT'
 }
 
 repositories {
@@ -78,35 +68,46 @@ processResources
     }
 }
 
-mixin {
+/*mixin {
     add sourceSets.main, "mixins.chatcensorsponge.refmap.json"
-}
+}*/
 
 jar {
     manifest{
         attributes 'FMLCorePlugin': 'the_fireplace.chatcensor.forge.core.ChatCensorCore'
         attributes 'FMLCorePluginContainsFMLMod': 'true'
-        attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
-        attributes 'MixinConfigs': 'mixins.chatcensorsponge.json'
+        //attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
+        //attributes 'MixinConfigs': 'mixins.chatcensorsponge.json'
     }
 }
 
-task signJar(type: SignJar, dependsOn: reobfJar) {
+/*task signJar(type: SignJar, dependsOn: reobfJar) {
 	alias = project.alias
 	storePass = project.storePass
 	keyPass = project.keyPass
 	keyStore = project.keyStore
-	
+
     inputFile = jar.archivePath
     outputFile = jar.archivePath
+}*/
+
+//build.dependsOn signJar
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'deobf'
 }
 
-build.dependsOn signJar
+artifacts {
+    archives jar
+    archives deobfJar
+    archives sourceJar
+}
 
 curseforge {
   apiKey = project.hasProperty("curseForgeApiKey")? project.curseForgeApiKey : "empty"
   project {
-    id = '000000'
+    id = '340070'
     changelog = file('changelog.txt')
     releaseType = 'release'
     addGameVersion '1.12.2'
@@ -121,7 +122,7 @@ modsIO {
     key = project.hasProperty("modsioApiKey")? project.modsioApiKey : "empty"
     project{
 		artifact = new File(jar.destinationDir, archivesBaseName+"-"+version+".jar")
-		modid = "0000"
+		modid = "1282"
 		minecraft = "1.12.2"
 		try{changelog = file('changelog.txt').text}catch(Exception ignored){changelog=""}
 		tag = ""
