@@ -21,10 +21,14 @@ public class CensorHelper {
             censored.put(uncensored, getCensoredWord(uncensored));
     }
 
+    @SuppressWarnings("SuspiciousRegexArgument")
     public static String getCensoredWord(String censor) {
-        String sub = censor.substring(1, censor.length()-1);;
-        //noinspection ReplaceAllDot
-        return censor.substring(0, 1) + sub.replaceAll(".", "*") + censor.substring(censor.length() - 1);
+        if(ChatCensor.getConfig().censorFullWord()) {
+            return censor.replaceAll(".", "*");
+        } else {
+            String sub = censor.substring(1, censor.length() - 1);
+            return censor.substring(0, 1) + sub.replaceAll(".", "*") + censor.substring(censor.length() - 1);
+        }
     }
 
     public static String matchCase(String correctCase, String formatted) {

@@ -72,9 +72,11 @@ public final class ChatCensorForge {
         @Config.Comment("Server locale - the client's locale takes precedence if Chat Censor is installed there.")
         public static String locale = "en_us";
         @Config.Comment("The strings that should be censored for players that have censoring enabled.")
-        public static String[] stingsToCensor = {"fuck", "shit", "bitch", "nigger", "dick", "crap", "cunt", "pussy", "niglet", "beaner", "wetback", "spic", "nazi", "faggot", "fag", "towelhead"};
+        public static String[] stingsToCensor = {"fuck", "shit", "bitch", "nigger", "dick", "crap", "cunt", "pussy", "niglet", "beaner", "wetback", "spic", "nazi", "faggot", "fag", "towelhead", "kike", "cock"};
         @Config.Comment("Using this will save CPU at the cost of slightly increased memory usage.")
         public static boolean useCache = true;
+        @Config.Comment("Using this will censor the full word and not just everything between the first and last letters. On: ******, off: f****t.")
+        public static boolean fullWordCensor = true;
 
         @Override
         public String getLocale() {
@@ -89,6 +91,11 @@ public final class ChatCensorForge {
         @Override
         public boolean useCache() {
             return useCache;
+        }
+
+        @Override
+        public boolean censorFullWord() {
+            return fullWordCensor;
         }
     }
 }

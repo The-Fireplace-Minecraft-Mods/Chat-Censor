@@ -7,4 +7,5 @@ public interface IConfig {
     String getLocale();
     List<String> getStringsToCensor();
     boolean useCache();
+    boolean censorFullWord();
 }

@@ -4,7 +4,7 @@
   "name": "Chat Censor",
   "description": "A server-side mod to censor chat and allow users to decide if they want to see censored chat.",
   "version": "${version}",
-  "mcversion": "",
+  "mcversion": "1.12.2",
   "logoFile": "",
   "url": "https://www.curseforge.com/minecraft/mc-mods/chat-censor",
   "authorList": ["The_Fireplace"],
