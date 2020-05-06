@@ -123,6 +123,7 @@ public final class PlayerDataManager {
                 JsonArray muted = new JsonArray();
                 for(UUID id: mutedPlayers)
                     muted.add(new JsonPrimitive(id.toString()));
+                obj.add("muted", muted);
 
                 try {
                     FileWriter file = new FileWriter(playerDataFile);
