@@ -12,6 +12,7 @@ import the_fireplace.chatcensor.forge.ForgePermissionHandler;
 import the_fireplace.chatcensor.forge.compat.ForgeMinecraftHelper;
 import the_fireplace.chatcensor.logic.ServerEventLogic;
 import the_fireplace.chatcensor.sponge.SpongePermissionHandler;
+import the_fireplace.chatcensor.util.CensorHelper;
 
 import java.util.List;
 import java.util.Objects;
@@ -46,6 +47,7 @@ public final class ChatCensorForge {
             ChatCensor.setPermissionManager(new SpongePermissionHandler());
         else
             ChatCensor.setPermissionManager(new ForgePermissionHandler());
+        CensorHelper.initCensoredMap();
     }
 
     @Mod.EventHandler

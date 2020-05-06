@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class NetworkUtils {
-    public static final Map<String, UUID> messageSenders = Maps.newHashMap();
+    public static final Map<Integer, UUID> messageSenders = Maps.newHashMap();
 
     @SuppressWarnings("unused")
     public static SPacketChat createModifiedChat(EntityPlayerMP chatTarget, SPacketChat original) {
@@ -26,24 +26,28 @@ public class NetworkUtils {
     }
 
     public static SPacketChat createModifiedChat(UUID chatTargetId, SPacketChat original) {
-        UUID senderId = messageSenders.get(original.getChatComponent().toString());
-        if(senderId != null && PlayerDataManager.hasMuted(chatTargetId, senderId))
-            return getMutedMessage(chatTargetId, original.getType());
-        if(PlayerDataManager.getIgnoresCensor(chatTargetId))
-            return original;
-        if(senderId != null && PlayerDataManager.isCensored(senderId))
-            return getMutedMessage(chatTargetId, original.getType());
+        PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
+        ITextComponent comp;
         try {
             //Write the Packet to the PacketBuffer because the only other option to access the TextComponent on the server side would be an access transformer.
-            PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
             original.writePacketData(buf);
-            ITextComponent comp = buf.readTextComponent();
-            comp = CensorHelper.getCensoredTextComponent(comp);
-            return new SPacketChat(comp, original.getType());
+            comp = buf.readTextComponent();
         } catch(IOException e) {
             e.printStackTrace();
             return new SPacketChat();
         }
+        UUID senderId = messageSenders.get(comp.getUnformattedText().hashCode());
+        if(senderId != null && PlayerDataManager.hasMuted(chatTargetId, senderId))
+            return getMutedMessage(chatTargetId, original.getType());
+        if(PlayerDataManager.getIgnoresCensor(chatTargetId)) {
+            PlayerDataManager.setReceivedCensoredMessage(chatTargetId, false);
+            return original;
+        }
+        if(senderId != null && PlayerDataManager.isCensored(senderId))
+            return getMutedMessage(chatTargetId, original.getType());
+        comp = CensorHelper.getCensoredTextComponent(comp);
+        PlayerDataManager.setReceivedCensoredMessage(chatTargetId, false);
+        return new SPacketChat(comp, original.getType());
     }
 
     @Nullable
