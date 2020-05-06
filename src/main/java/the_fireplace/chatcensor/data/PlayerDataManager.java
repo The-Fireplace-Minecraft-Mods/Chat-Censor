@@ -20,11 +20,23 @@ public final class PlayerDataManager {
     public static boolean getIgnoresCensor(UUID player) {
         return getPlayerData(player).ignoresCensor;
     }
+    public static boolean isCensored(UUID player) {
+        return getPlayerData(player).isCensored;
+    }
+    public static boolean getReceivedCensoredMessage(UUID player) {
+        return getPlayerData(player).receivedCensoredMessage;
+    }
     //endregion
 
     //region saved data setters
     public static void setIgnoresCensor(UUID player, boolean ignoresCensor) {
         getPlayerData(player).setIgnoresCensor(ignoresCensor);
+    }
+    public static void setCensored(UUID player, boolean isCensored) {
+        getPlayerData(player).setIsCensored(isCensored);
+    }
+    public static void setReceivedCensoredMessage(UUID player, boolean receivedCensoredMessage) {
+        getPlayerData(player).setReceivedCensoredMessage(receivedCensoredMessage);
     }
     //endregion
 
@@ -59,7 +71,7 @@ public final class PlayerDataManager {
         //endregion
 
         //region Saved variables
-        private boolean ignoresCensor;
+        private boolean ignoresCensor, isCensored, receivedCensoredMessage;
         //endregion
 
         //region Constructor
@@ -98,6 +110,8 @@ public final class PlayerDataManager {
             new Thread(() -> {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("ignoresCensor", ignoresCensor);
+                obj.addProperty("isCensored", isCensored);
+                //Do not write receivedCensoredMessage, that doesn't need to persist.
 
                 try {
                     FileWriter file = new FileWriter(playerDataFile);
@@ -116,6 +130,18 @@ public final class PlayerDataManager {
             if(this.ignoresCensor != ignoresCensor) {
                 this.ignoresCensor = ignoresCensor;
                 isChanged = true;
+            }
+        }
+        public void setIsCensored(boolean isCensored) {
+            if(this.isCensored != isCensored) {
+                this.isCensored = isCensored;
+                isChanged = true;
+            }
+        }
+        public void setReceivedCensoredMessage(boolean receivedCensoredMessage) {
+            if(this.receivedCensoredMessage != receivedCensoredMessage) {
+                this.receivedCensoredMessage = receivedCensoredMessage;
+                //Do not save receivedCensoredMessage, that doesn't need to persist.
             }
         }
         //endregion
