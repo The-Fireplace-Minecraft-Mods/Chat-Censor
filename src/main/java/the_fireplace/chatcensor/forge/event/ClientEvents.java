@@ -9,7 +9,7 @@ import the_fireplace.chatcensor.ChatCensor;
 import the_fireplace.chatcensor.util.CensorHelper;
 
 @SideOnly(Side.CLIENT)
-@Mod.EventBusSubscriber(modid = ChatCensor.MODID)
+@Mod.EventBusSubscriber(modid = ChatCensor.MODID, value = Side.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
     public static void onChatReceived(ClientChatReceivedEvent event) {

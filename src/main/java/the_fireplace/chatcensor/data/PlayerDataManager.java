@@ -1,14 +1,14 @@
 package the_fireplace.chatcensor.data;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import the_fireplace.chatcensor.ChatCensor;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,6 +38,20 @@ public final class PlayerDataManager {
     public static void setReceivedCensoredMessage(UUID player, boolean receivedCensoredMessage) {
         getPlayerData(player).setReceivedCensoredMessage(receivedCensoredMessage);
     }
+
+    /**
+     * @return true if the target is muted after this
+     */
+    public static boolean toggleMute(UUID player, UUID target) {
+        return getPlayerData(player).toggleMute(target);
+    }
+
+    /**
+     * @return true if the target is muted by the given player
+     */
+    public static boolean hasMuted(UUID player, UUID target) {
+        return getPlayerData(player).isMuted(target);
+    }
     //endregion
 
     //region cached data setters
@@ -65,23 +79,16 @@ public final class PlayerDataManager {
     //endregion
 
     private static class PlayerData {
-        //region Internal variables
-        private File playerDataFile;
+        private final File playerDataFile;
         private boolean isChanged, saving, shouldDisposeReferences = false;
-        //endregion
-
-        //region Saved variables
         private boolean ignoresCensor, isCensored, receivedCensoredMessage;
-        //endregion
+        private final List<UUID> mutedPlayers = Lists.newArrayList();
 
-        //region Constructor
         private PlayerData(UUID playerId) {
             playerDataFile = new File(playerDataLocation, playerId.toString()+".json");
             load(playerId);
         }
-        //endregion
 
-        //region load
         private void load(UUID playerId) {
             if(!playerDataLocation.exists()) {
                 playerDataLocation.mkdirs();
@@ -94,15 +101,16 @@ public final class PlayerDataManager {
                 if(obj instanceof JsonObject) {
                     JsonObject jsonObject = (JsonObject) obj;
                     ignoresCensor = jsonObject.has("ignoresCensor") && jsonObject.getAsJsonPrimitive("ignoresCensor").getAsBoolean();
+                    isCensored = jsonObject.has("isCensored") && jsonObject.getAsJsonPrimitive("isCensored").getAsBoolean();
+                    for(JsonElement e: jsonObject.has("muted") ? jsonObject.getAsJsonArray("muted") : new JsonArray())
+                        mutedPlayers.add(UUID.fromString(e.getAsString()));
                 }
             } catch (FileNotFoundException ignored) {
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        //endregion
 
-        //region save
         private void save() {
             if(!isChanged || saving)
                 return;
@@ -112,6 +120,9 @@ public final class PlayerDataManager {
                 obj.addProperty("ignoresCensor", ignoresCensor);
                 obj.addProperty("isCensored", isCensored);
                 //Do not write receivedCensoredMessage, that doesn't need to persist.
+                JsonArray muted = new JsonArray();
+                for(UUID id: mutedPlayers)
+                    muted.add(new JsonPrimitive(id.toString()));
 
                 try {
                     FileWriter file = new FileWriter(playerDataFile);
@@ -123,27 +134,40 @@ public final class PlayerDataManager {
                 saving = isChanged = false;
             }).start();
         }
-        //endregion
 
-        //region setters
         public void setIgnoresCensor(boolean ignoresCensor) {
             if(this.ignoresCensor != ignoresCensor) {
                 this.ignoresCensor = ignoresCensor;
                 isChanged = true;
             }
         }
+
         public void setIsCensored(boolean isCensored) {
             if(this.isCensored != isCensored) {
                 this.isCensored = isCensored;
                 isChanged = true;
             }
         }
+
         public void setReceivedCensoredMessage(boolean receivedCensoredMessage) {
             if(this.receivedCensoredMessage != receivedCensoredMessage) {
                 this.receivedCensoredMessage = receivedCensoredMessage;
                 //Do not save receivedCensoredMessage, that doesn't need to persist.
             }
         }
-        //endregion
+
+        /**
+         * @return true if the target is muted after doing this
+         */
+        public boolean toggleMute(UUID target) {
+            if(mutedPlayers.remove(target))
+                return false;
+            mutedPlayers.add(target);
+            return true;
+        }
+
+        public boolean isMuted(UUID target) {
+            return mutedPlayers.contains(target);
+        }
     }
 }

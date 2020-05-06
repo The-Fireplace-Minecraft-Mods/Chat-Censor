@@ -1,3 +1,13 @@
 commands.togglecensor.usage=/togglecensor
 commands.togglecensor.censored=Messages you see will now be censored.
 commands.togglecensor.uncensored=Messages you see will no longer be censored.
+
+commands.censorplayer.usage=/censorplayer <player>
+commands.censorplayer.censored=Messages sent by %s will now be censored.
+commands.censorplayer.uncensored=Messages sent by %s will no longer be censored.
+
+commands.mute.usage=/mute <player>
+commands.mute.censored=Messages sent by %s will now be muted.
+commands.mute.uncensored=Messages sent by %s will no longer be muted.
+
+chatcensor.censored_message=Message(s) blocked from censored/muted user(s).

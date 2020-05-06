@@ -19,6 +19,8 @@ public class SpongePermissionHandler implements IPermissionHandler {
         permissionService = Sponge.getServiceManager().provide(PermissionService.class).get();
 
         registerPermission("command.togglecensor", PermissionDescription.ROLE_USER, "");
+        registerPermission("command.mute", PermissionDescription.ROLE_USER, "");
+        registerPermission("command.censorplayer", PermissionDescription.ROLE_STAFF, "");
     }
 
     @Override

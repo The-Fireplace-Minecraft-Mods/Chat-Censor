@@ -9,6 +9,8 @@ public class ForgePermissionHandler implements IPermissionHandler {
 
     public ForgePermissionHandler() {
         registerPermission("command.togglecensor", DefaultPermissionLevel.ALL, "");
+        registerPermission("command.mute", DefaultPermissionLevel.ALL, "");
+        registerPermission("command.censorplayer", DefaultPermissionLevel.OP, "");
     }
 
     @Override
