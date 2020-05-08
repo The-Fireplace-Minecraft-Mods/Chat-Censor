@@ -16,7 +16,7 @@ public final class ChatCensorCore implements IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass(){
-        return new String[]{ TransformerSendPacket.class.getName() };
+        return new String[]{/* TransformerSendPacket.class.getName() */};
     }
 
     @Override

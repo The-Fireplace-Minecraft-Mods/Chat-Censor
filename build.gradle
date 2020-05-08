@@ -9,9 +9,11 @@ buildscript {
             name = "Modmuss50"
             url = "http://maven.modmuss50.me/"
         }
+        maven { url = 'https://repo.spongepowered.org/maven' }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
         classpath 'ModsIOUpload:ModsIOUpload:+'
     }
 }
@@ -20,6 +22,7 @@ plugins {
     id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'net.cazzar.gradle.modsio'
 
 version = "1.1.0"
@@ -41,8 +44,16 @@ minecraft {
 	clientRunArgs += "--uuid=0b1ec5ad-cb2a-43b7-995d-889320eb2e5b --username=The_Fireplace"
 }
 
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
 dependencies {
     provided 'org.spongepowered:spongeapi:7.1.0'
+    shade('org.spongepowered:mixin:0.8') {
+        transitive = false
+    }
 }
 
 repositories {
@@ -75,9 +86,23 @@ processResources
 jar {
     manifest{
         attributes 'FMLCorePlugin': 'the_fireplace.chatcensor.forge.core.ChatCensorCore'
-        attributes 'FMLCorePluginContainsFMLMod': 'true'
-        //attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
+        attributes 'FMLCorePluginContainsFMLMod': true
+        attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker'
+        attributes "TweakOrder": 0
+    	attributes "ForceLoadAsMod": true
+    	attributes "MixinConfigs": "mixins.chatcensor.json"
         //attributes 'MixinConfigs': 'mixins.chatcensorsponge.json'
+    }
+    configurations.shade.each { dep ->
+        from(project.zipTree(dep)) {
+            //rename 'LICENSE.txt', 'org/spongepowered/LICENSE.txt'
+
+            exclude 'META-INF/*.SF'
+            exclude 'META-INF/*.RSA'
+            exclude 'META-INF/*.MF'
+
+            exclude '**/*.html'
+        }
     }
 }
 

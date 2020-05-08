@@ -34,7 +34,7 @@ public class NetworkUtils {
             comp = buf.readTextComponent();
         } catch(IOException e) {
             e.printStackTrace();
-            return new SPacketChat();
+            return null;
         }
         UUID senderId = messageSenders.get(comp.getUnformattedText().hashCode());
         if(senderId != null && PlayerDataManager.hasMuted(chatTargetId, senderId))
