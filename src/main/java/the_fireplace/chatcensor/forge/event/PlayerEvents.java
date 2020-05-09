@@ -23,6 +23,6 @@ public class PlayerEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onServerChat(ServerChatEvent event) {
-        NetworkUtils.messageSenders.put(event.getComponent().getUnformattedText().hashCode(), event.getPlayer().getUniqueID());
+        NetworkUtils.messageSenders.putIfAbsent(event.getComponent().getUnformattedText().hashCode(), event.getPlayer().getUniqueID());
     }
 }

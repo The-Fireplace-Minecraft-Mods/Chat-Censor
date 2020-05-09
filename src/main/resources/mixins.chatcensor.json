@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "the_fireplace.chatcensor.forge.core",
+  "package": "the_fireplace.chatcensor.forge.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "NetHandlerPlayServerMixin"

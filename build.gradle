@@ -40,7 +40,8 @@ minecraft {
     replace '${version}', project.version
     mappings = "stable_39"
     makeObfSourceJar = false
-	
+
+    serverJvmArgs += "-Dfml.coreMods.load=the_fireplace.chatcensor.forge.core.ChatCensorCore"
 	clientRunArgs += "--uuid=0b1ec5ad-cb2a-43b7-995d-889320eb2e5b --username=The_Fireplace"
 }
 
