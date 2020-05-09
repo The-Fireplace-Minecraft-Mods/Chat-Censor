@@ -38,6 +38,7 @@ minecraft {
     version = "1.12.2-14.23.5.2768"
     runDir = "run"
     replace '${version}', project.version
+    replace '${fingerprint}', project.findProperty('signSha1')
     mappings = "stable_39"
     makeObfSourceJar = false
 
@@ -80,10 +81,6 @@ processResources
     }
 }
 
-/*mixin {
-    add sourceSets.main, "mixins.chatcensorsponge.refmap.json"
-}*/
-
 jar {
     manifest{
         attributes 'FMLCorePlugin': 'the_fireplace.chatcensor.forge.core.ChatCensorCore'
@@ -107,17 +104,26 @@ jar {
     }
 }
 
-/*task signJar(type: SignJar, dependsOn: reobfJar) {
-	alias = project.alias
-	storePass = project.storePass
-	keyPass = project.keyPass
-	keyStore = project.keyStore
+task signJar(type: SignJar, dependsOn: reobfJar) {
+
+    // Skips if the keyStore property is missing.
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+
+    // findProperty allows us to reference the property without it existing.
+    // Using project.propName would cause the script to fail validation if
+    // the property did not exist.
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
 
     inputFile = jar.archivePath
     outputFile = jar.archivePath
-}*/
+}
 
-//build.dependsOn signJar
+build.dependsOn signJar
 
 task deobfJar(type: Jar) {
     from sourceSets.main.output
