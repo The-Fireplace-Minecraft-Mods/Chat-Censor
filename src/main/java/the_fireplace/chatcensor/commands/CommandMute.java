@@ -8,11 +8,15 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import the_fireplace.chatcensor.data.PlayerDataManager;
 import the_fireplace.chatcensor.util.PermissionManager;
 import the_fireplace.chatcensor.util.translation.TranslationUtil;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collections;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -52,5 +56,12 @@ public class CommandMute extends CommandBase {
     @Override
     public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
         return sender instanceof EntityPlayerMP && (!PermissionManager.permissionManagementExists() && sender.canUseCommand(getRequiredPermissionLevel(), getName()) || PermissionManager.hasPermission(sender, "command.mute"));
+    }
+
+    @Override
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
+        if (args.length == 1)
+            return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
+        return Collections.emptyList();
     }
 }
