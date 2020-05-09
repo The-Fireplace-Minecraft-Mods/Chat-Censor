@@ -20,7 +20,7 @@ import java.util.Objects;
 import static the_fireplace.chatcensor.ChatCensor.MODID;
 
 @Mod.EventBusSubscriber(modid = MODID)
-@Mod(modid = MODID, name = ChatCensor.MODNAME, version = ChatCensor.VERSION, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*", dependencies="after:spongeapi", certificateFingerprint = "51ac068a87f356c56dc733d0c049a9a68bc7245c")
+@Mod(modid = MODID, name = ChatCensor.MODNAME, version = ChatCensor.VERSION, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*", dependencies="after:spongeapi", certificateFingerprint = "c53ee989fa7536d62578af0cfe30225aa8a06ec2")
 public final class ChatCensorForge {
     @Mod.Instance(MODID)
     public static ChatCensorForge instance;
