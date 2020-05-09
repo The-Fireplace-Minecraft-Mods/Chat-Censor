@@ -64,4 +64,9 @@ public class CommandMute extends CommandBase {
             return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
         return Collections.emptyList();
     }
+
+    @Override
+    public boolean isUsernameIndex(String[] args, int index) {
+        return index == 0;
+    }
 }

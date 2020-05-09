@@ -61,4 +61,9 @@ public class CommandCensorPlayer extends CommandBase {
             return getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
         return Collections.emptyList();
     }
+
+    @Override
+    public boolean isUsernameIndex(String[] args, int index) {
+        return index == 0;
+    }
 }
