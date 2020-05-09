@@ -16,9 +16,12 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NetworkUtils {
     public static final Map<Integer, UUID> messageSenders = Maps.newHashMap();
+    public static final Map<String, UUID> messageSendersBackup = Maps.newHashMap();
 
     @SuppressWarnings("unused")
     public static SPacketChat createModifiedChat(EntityPlayerMP chatTarget, SPacketChat original) {
@@ -37,6 +40,12 @@ public class NetworkUtils {
             return null;
         }
         UUID senderId = messageSenders.get(comp.getUnformattedText().hashCode());
+        if(senderId == null) {
+            Pattern brackets = Pattern.compile("(<[a-zA-Z0-9_]{3,}>)");
+            Matcher m = brackets.matcher(comp.getUnformattedText());
+            if(m.find())
+                senderId = messageSendersBackup.get(m.group());
+        }
         if(senderId != null && PlayerDataManager.hasMuted(chatTargetId, senderId))
             return getMutedMessage(chatTargetId, original.getType());
         if(PlayerDataManager.getIgnoresCensor(chatTargetId)) {
@@ -56,7 +65,7 @@ public class NetworkUtils {
             return null;
         else {
             PlayerDataManager.setReceivedCensoredMessage(chatTargetId, true);
-            return new SPacketChat(TranslationUtil.getTranslation(chatTargetId, "chatcensor.censored_message").setStyle(new Style().setColor(TextFormatting.GRAY)), type);
+            return new SPacketChat(TranslationUtil.getTranslation("chatcensor.censored_message").setStyle(new Style().setColor(TextFormatting.GRAY)), type);
         }
     }
 }

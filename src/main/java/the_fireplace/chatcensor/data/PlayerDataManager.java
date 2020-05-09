@@ -161,6 +161,7 @@ public final class PlayerDataManager {
          * @return true if the target is muted after doing this
          */
         public boolean toggleMute(UUID target) {
+            isChanged = true;
             if(mutedPlayers.remove(target))
                 return false;
             mutedPlayers.add(target);

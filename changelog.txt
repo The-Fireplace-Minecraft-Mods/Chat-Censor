@@ -3,3 +3,4 @@ Added a config option to censor the full word and not leave the ends uncensored
 Made it possible to use Chat Censor as a client side censor
 Added the ability for individuals to mute players they don't want to see messages from.
 Added the ability for server admins to censor players whose chat they don't want showing to players whose chat is censored.
+Internal change: Use Mixin instead of CoreMod.
