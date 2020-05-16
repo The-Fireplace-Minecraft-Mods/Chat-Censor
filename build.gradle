@@ -89,7 +89,6 @@ jar {
         attributes "TweakOrder": 0
     	attributes "ForceLoadAsMod": true
     	attributes "MixinConfigs": "mixins.chatcensor.json"
-        //attributes 'MixinConfigs': 'mixins.chatcensorsponge.json'
     }
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
